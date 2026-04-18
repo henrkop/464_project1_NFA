@@ -39,14 +39,23 @@ with open('nfa.txt', 'r') as nfa_file:
 
     #epsilon transitions must add the new state AND keep the old state in the set of current reached states
     def epsilons(states, transitions):
-        prev = set(states)
-        stack = list(states)
+        prev = set(states) #tracks states discovered so far
+        stack = list(states) #use a stack to explore states who epsilon transitions havent been followed yet
+        
         while len(stack) > 0:
+            #pop one state to process
             current = stack.pop()
+
+            #check all transitions in the NFA
             for t in transitions:
+                #if there is an epsilon transition from the curr state
                 if t[0] == current and t[1] == 'E':
+                    #if the dest has not been seen before
                     if t[2] not in prev:
+                        #add to closure
                         prev.add(t[2])
+
+                        #also add to stack to explore epsilon transitions from this state
                         stack.append(t[2])
         return prev
 
@@ -55,12 +64,15 @@ with open('nfa.txt', 'r') as nfa_file:
 
     #walk the string
     for ch in s:
-        next_states = set()
+        next_states = set() #stoire all states reachable after reading this char
         
         #takes the current states and adds to the set of next states by following character transitions
         for state in current_states:
+            #check all transitions
             for t in transitions:
+                #if a transition is on the curr char
                 if t[0] == state and t[1] == ch:
+                    #add dest state
                     next_states.add(t[2])
 
         #updates by epsilons again
@@ -69,6 +81,7 @@ with open('nfa.txt', 'r') as nfa_file:
         #edge case, input character provided not in alphabet
         if ch not in alphabet:
             print("Character " + ch + " NOT IN ALPHABET")
+            #no valid transitions -> reject
             current_states = set()
             break
 
